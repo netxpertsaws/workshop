@@ -1,0 +1,28 @@
+[Unit]
+Description=Apache Tomcat 9 — Workshop Site
+After=network.target
+
+[Service]
+Type=forking
+
+User=tomcat
+Group=tomcat
+
+# Java + Tomcat paths
+Environment="JAVA_HOME=__JAVA_HOME__"
+Environment="CATALINA_HOME=/opt/tomcat"
+Environment="CATALINA_BASE=/opt/tomcat"
+Environment="CATALINA_PID=/opt/tomcat/temp/tomcat.pid"
+Environment="CATALINA_OPTS=-Xms256m -Xmx512m"
+
+# Database credentials (sourced from /etc/tomcat-env, chmod 600)
+EnvironmentFile=/etc/tomcat-env
+
+ExecStart=/opt/tomcat/bin/startup.sh
+ExecStop=/opt/tomcat/bin/shutdown.sh
+
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

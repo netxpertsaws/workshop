@@ -1,0 +1,37 @@
+# Maven
+target/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+.metadata/
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Logs
+*.log
+logs/
+
+# OS / editors
+*.swp
+*~
+*.bak
+
+# Local secrets — NEVER commit these
+.env
+.env.local
+*.pem
+*.key
+secrets/
+
+# Build output / packaging artefacts
+*.war
+*.jar
+*.ear

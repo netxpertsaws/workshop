@@ -1,0 +1,102 @@
+name: CI / CD
+
+# ─── Triggers ────────────────────────────────────────────────────────────────
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:        # allows manual "Run workflow" from the UI
+
+env:
+  WAR_NAME: workshop-site.war
+
+jobs:
+
+  # ─── CI: build, test, archive the WAR ──────────────────────────────────────
+  build:
+    name: Build & package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11 (with Maven cache)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build WAR with Maven
+        run: mvn -B --no-transfer-progress clean package
+
+      - name: Show build artifacts
+        run: ls -lh target/
+
+      - name: Upload WAR artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: workshop-site
+          path: target/${{ env.WAR_NAME }}
+          retention-days: 14
+
+  # ─── CD: deploy WAR to EC2 (only on push to main, not on PRs) ──────────────
+  deploy:
+    name: Deploy to EC2
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    environment: production    # enables protection rules in GitHub UI
+
+    steps:
+      - name: Download WAR artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: workshop-site
+          path: ./
+
+      - name: Load SSH private key into agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Add EC2 host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload WAR to EC2
+        run: |
+          scp ${{ env.WAR_NAME }} \
+              ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/tmp/${{ env.WAR_NAME }}
+
+      - name: Swap in new WAR and restart Tomcat
+        run: |
+          ssh ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+            set -e
+            sudo systemctl stop tomcat
+            sudo rm -rf /opt/tomcat/webapps/workshop-site \
+                        /opt/tomcat/webapps/${{ env.WAR_NAME }}
+            sudo cp /tmp/${{ env.WAR_NAME }} /opt/tomcat/webapps/
+            sudo chown tomcat:tomcat /opt/tomcat/webapps/${{ env.WAR_NAME }}
+            sudo systemctl start tomcat
+            sudo systemctl is-active tomcat
+          '
+
+      - name: Smoke test
+        run: |
+          echo "Waiting for Tomcat to publish the new WAR..."
+          for i in 1 2 3 4 5 6; do
+            sleep 5
+            HTTP=$(curl -s -o /dev/null -w "%{http_code}" \
+                   "http://${{ secrets.EC2_HOST }}:8080/workshop-site/" || echo "000")
+            if [ "$HTTP" = "200" ]; then
+              echo "✓ Site is up (HTTP $HTTP) — http://${{ secrets.EC2_HOST }}:8080/workshop-site/"
+              exit 0
+            fi
+            echo "  attempt $i: got HTTP $HTTP, retrying..."
+          done
+          echo "✗ Smoke test failed after 30 seconds"
+          exit 1

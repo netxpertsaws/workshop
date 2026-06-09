@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrations — Workshop Admin</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- ───── Header ─────────────────────────────────────────────────────── -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="index.html" class="brand">
+        <span class="brand-mark">M</span>
+        <span class="brand-text">Mayooran<small>Workshop Admin</small></span>
+      </a>
+      <nav class="nav">
+        <a href="index.html">← Back to site</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ───── Page body ──────────────────────────────────────────────────── -->
+  <section class="section">
+    <div class="container">
+
+      <div class="reg-page-head">
+        <div>
+          <h2 class="section-title">Registered participants</h2>
+          <p class="section-sub">All workshop registrations, newest first.</p>
+        </div>
+        <div class="reg-stats">
+          <div class="reg-stat-card">
+            <span class="reg-stat-num" id="stat-total">—</span>
+            <span class="reg-stat-lbl">Total</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="reg-toolbar">
+        <label class="reg-filter">
+          <span>Filter by workshop:</span>
+          <select id="filter-workshop">
+            <option value="">All workshops</option>
+            <option value="Containers &amp; Kubernetes at Scale">
+              Containers &amp; Kubernetes at Scale
+            </option>
+            <option value="Cloud-Scale DevOps Strategy">
+              Cloud-Scale DevOps Strategy
+            </option>
+          </select>
+        </label>
+        <div class="reg-toolbar-actions">
+          <button id="btn-refresh" class="btn btn-outline">↻ Refresh</button>
+          <button id="btn-csv" class="btn btn-primary">⤓ Download CSV</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="reg-table-wrap">
+        <table class="reg-table">
+          <thead>
+            <tr>
+              <th class="col-num">#</th>
+              <th>Student Name</th>
+              <th>Student No</th>
+              <th>Workshop</th>
+              <th>Registered At</th>
+            </tr>
+          </thead>
+          <tbody id="reg-tbody">
+            <tr class="reg-state-row">
+              <td colspan="5">Loading…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="reg-note">
+        <strong>Note:</strong> This page is currently unauthenticated. For production
+        use, protect it with HTTP Basic Auth, an OIDC provider, or place it behind
+        an internal-only path. Do not share the URL publicly.
+      </p>
+
+    </div>
+  </section>
+
+  <!-- ───── Footer ─────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <b>Mayooran</b>
+        <span class="muted"> — Independent Trainer &amp; Consultant · Sri Lanka</span>
+      </div>
+      <div class="muted">© <span id="year"></span> Workshop Series</div>
+    </div>
+  </footer>
+
+  <script src="js/registrations.js"></script>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>
