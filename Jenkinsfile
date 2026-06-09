@@ -49,7 +49,7 @@ pipeline {
     environment {
     WAR_NAME   = 'workshop-site.war'
     REMOTE_DIR = "/tmp/workshop-provision"
-    APP_HOST   = "${params.APP_HOST}"      ← NEW: copy param into env
+    APP_HOST   = "${params.APP_HOST}"
 }
 
     options {
