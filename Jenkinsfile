@@ -31,7 +31,7 @@ pipeline {
     parameters {
         string(
             name: 'APP_HOST',
-            defaultValue: 'ubuntu@YOUR_APP_SERVER_IP',
+            defaultValue: 'ubuntu@172.31.11.224',
             description: 'SSH target — user@ip of the App Server. Example: ubuntu@13.234.56.78'
         )
         booleanParam(
