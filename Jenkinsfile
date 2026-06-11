@@ -25,7 +25,7 @@ pipeline {
 
     tools {
         maven 'Maven-3.9'
-        jdk   'JDK-11'
+        jdk   'JDK-17'
     }
 
     parameters {
