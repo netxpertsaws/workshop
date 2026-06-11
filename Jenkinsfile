@@ -85,8 +85,11 @@ pipeline {
             }
         }
 stage('SonarQube Analysis') {
+    tools {
+        jdk 'JDK-17' 
+    }
     steps {
-        withSonarQubeEnv('SonarQube') {          
+        withSonarQubeEnv('SonarQube') {
             sh '''
                 mvn -B sonar:sonar \
                     -Dsonar.projectKey=workshop-site \
