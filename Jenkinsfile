@@ -84,6 +84,26 @@ pipeline {
                 }
             }
         }
+stage('SonarQube Analysis') {
+    steps {
+        withSonarQubeEnv('SonarQube') {          // ← name from step 2.3
+            sh '''
+                mvn -B sonar:sonar \
+                    -Dsonar.projectKey=workshop-site \
+                    -Dsonar.projectName="Workshop Registration Site"
+            '''
+        }
+    }
+}
+
+stage('Quality Gate') {
+    steps {
+        timeout(time: 5, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true    // fail build if gate fails
+        }
+    }
+}
+        
 
         stage('Archive WAR') {
             steps {
