@@ -84,29 +84,23 @@ pipeline {
                 }
             }
         }
-stage('SonarQube Analysis') {
-    tools {
-        jdk 'JDK-17' 
-    }
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            sh '''
-                mvn -B sonar:sonar \
-                    -Dsonar.projectKey=workshop-site \
-                    -Dsonar.projectName="Workshop Registration Site"
-            '''
-        }
-    }
-}
 
-stage('Quality Gate') {
-    steps {
-        timeout(time: 5, unit: 'MINUTES') {
-            waitForQualityGate abortPipeline: true   
+        stage('SonarQube Analysis') {
+            tools {
+                // SonarQube 10.x+ scanners require Java 17 (stage-only override)
+                jdk 'JDK-17'
+            }
+            steps {
+                sonarAnalysis projectKey: 'workshop-site',
+                              projectName: 'Workshop Registration Site'
+            }
         }
-    }
-}
-        
+
+        stage('Quality Gate') {
+            steps {
+                sonarQualityGate timeoutMinutes: 5
+            }
+        }       
 
         stage('Archive WAR') {
             steps {
