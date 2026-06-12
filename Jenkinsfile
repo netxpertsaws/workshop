@@ -20,6 +20,7 @@
 //    - Default 'ubuntu' user has passwordless sudo (AWS AMI default)
 // ============================================================================
 
+@Library('workshop-lib') _
 pipeline {
     agent any
 
